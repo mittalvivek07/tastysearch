@@ -11,9 +11,9 @@ var engine = function(){
 engine.prototype.start = function(done){
 	var startTime = new Date().getTime();
 	var self = this;
-	init("./data/foods.txt", function(docs, trees){
+	init("./data/foods.txt", function(docs, tree){
 		self.docs = docs;
-		self.trees = trees;
+		self.tree = tree;
 		var endTime = new Date().getTime();	
 		console.log("time taken is");
 		console.log((endTime- startTime)/1000);
@@ -27,24 +27,21 @@ engine.prototype.start = function(done){
 engine.prototype.search = function(tokens){
 	var score = {};
 	//console.log(this.docs);
-	//console.log(this.trees);
+	//console.log(this.tree);
 	var startTime = new Date().getTime();
 	for(var i in tokens){
-		var token = tokens[i].toLowerCase();
-		//console.log(token);
-		for(var j in this.docs){
-			var doc = this.docs[j];
-			var tree = this.trees[j];
-			//console.log(doc);
-			//console.log(tree);
-			
-			if(tree.find(token)){
-				if(score[j] == undefined){
-					score[j] = 0;
+		var token = tokens[i].toLowerCase().trim();
+		var leaves = this.tree.find(token);
+		//console.log(leaves);
+		if(leaves !== null){
+			for(var i in leaves){
+				if(score[i] === undefined){
+					score[i] = 0;
 				}
-				score[j]++;
+				score[i]++;
 			}
 		}
+
 	}
 	var matchedDocs = [];
 	for(var i in score){

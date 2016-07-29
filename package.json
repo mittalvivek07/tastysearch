@@ -1,7 +1,7 @@
 {
   "name": "searchengine",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is a simple search engine to find topmost k reviews published",
   "main": "src/server.js",
   "dependencies": {
     "express": "^4.14.0",

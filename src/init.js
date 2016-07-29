@@ -1,8 +1,8 @@
 
-const suffixTree = require("./suffixTree");
+const trie = require("./trie");
 const parser = require("./parser");
 
-var trees = {};
+var tree = new trie();
 var docIndex = {};
 var docs = {};
 var docNumber = -1;
@@ -17,7 +17,7 @@ module.exports = function(file, done){
 	parser.parse(file, docAvailable, function(){
 		console.log(docNumber);
 		delete(docIndex);
-		done(docs, trees);
+		done(docs, tree);
 	});
 }
 
@@ -30,14 +30,14 @@ var docAvailable = function(doc){
 		//var d = {};
 		//d.score = doc.score;
 		docs[docNumber] = doc;
-		var tree = new suffixTree();
+		
 
 		var words = [];
 		if(doc.summary != undefined){
 			words = doc.summary.split(/[-:',."?\s><]+/).filter(function(item) { return item !== '' });
 		}
 		for(var i in words){
-			tree.add(words[i]);
+			tree.add(words[i], docNumber);
 		}
 		
 		words =  [];
@@ -45,11 +45,11 @@ var docAvailable = function(doc){
 			words = doc.text.split(/[-:',."?\s><]+/).filter(function(item) { return item !== '' });
 		}
 		
-		for(var j in words){
-			//tree.add(words[j]);
+		for(var i in words){
+			tree.add(words[i], docNumber);
 		}
 		//console.log(tree.count());
-		trees[docNumber] = tree;
+		//trees[docNumber] = tree;
 
 }
 

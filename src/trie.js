@@ -1,21 +1,22 @@
-var suffixTree = module.exports = function(){
+var trie = module.exports = function(){
     this.root = new node("");
     //console.log(s);
 
 }
-suffixTree.prototype.log = function(){
+trie.prototype.log = function(){
     this.root.log();
 }
-suffixTree.prototype.find = function(s){
+trie.prototype.find = function(s){
     return this.root.find(s);
 }
-suffixTree.prototype.add = function(s){
-	s.toLowerCase();
+trie.prototype.add = function(s, docNumber){
+	s = s.toLowerCase();
 	//console.log(s);
-	this.root.add(s);
+	//console.log(docNumber);
+	this.root.add(s, docNumber);
 }
 
-suffixTree.prototype.count = function(){
+trie.prototype.count = function(){
 	return this.root.count();
 }
 
@@ -25,27 +26,32 @@ var node = function(s){
     this.children = {};
 }
 
-node.prototype.add = function(s){
+node.prototype.add = function(s, docNumber){
    // console.log(s);
     if(s.length === 0){
-		this.leaf = true;
+		if(this.leafs === undefined){
+			this.leafs = {};
+		}
+		//console.log(docNumber);
+		this.leafs[docNumber] = true;
         return;
     }
+	
     if(this.children[s[0]] === undefined){
         this.children[s[0]] = new node(s[0]);
     }
-    this.children[s[0]].add(s.substr(1));
+    this.children[s[0]].add(s.substr(1), docNumber);
 }
 
 node.prototype.find = function(s){
     if(s.length === 0){
-		if(this.leaf === true){
-			return true;
+		if(this.leafs === undefined){
+			return null;
 		}else{
-			return false;
+			return this.leafs;
 		}
     } else if(this.children[s[0]] === undefined){
-        return false;
+        return null;
     } else{
         return this.children[s[0]].find(s.substr(1));
     }
