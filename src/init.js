@@ -34,7 +34,7 @@ var docAvailable = function(doc){
 
 		var words = [];
 		if(doc.summary != undefined){
-			words = doc.summary.split(/[-:',."?\s><]+/).filter(function(item) { return item !== '' });
+			words = doc.summary.split(/[-:',.%)/(!"?\s><]+/).filter(function(item) { return item !== '' });
 		}
 		for(var i in words){
 			tree.add(words[i], docNumber);
@@ -42,7 +42,7 @@ var docAvailable = function(doc){
 		
 		words =  [];
 		if(doc.text != undefined){
-			words = doc.text.split(/[-:',."?\s><]+/).filter(function(item) { return item !== '' });
+			words = doc.text.split(/[-:',.%)/(!"?\s><]+/).filter(function(item) { return item !== '' });
 		}
 		
 		for(var i in words){
