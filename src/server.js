@@ -3,6 +3,7 @@ const heap = require("heap");
 const k = 20;
 var express = require('express');
 var app = express();
+var compression = require('compression');
 
 
 var engine = function(){
@@ -24,25 +25,37 @@ engine.prototype.start = function(done){
 }
 
 
-engine.prototype.search = function(tokens){
+engine.prototype.getScores = function(tokens, done){
 	var score = {};
 	//console.log(this.docs);
 	//console.log(this.tree);
-	var startTime = new Date().getTime();
-	for(var i in tokens){
-		var token = tokens[i].toLowerCase().trim();
-		var leaves = this.tree.find(token);
-		//console.log(leaves);
-		if(leaves !== null){
-			for(var i in leaves){
-				if(score[i] === undefined){
-					score[i] = 0;
+	//
+	//console.log(tokens);
+	var self = this;
+	var find = function(counter){
+		//console.log(tokens.length);
+		//console.log(tokens);
+		//console.log(counter);
+		if(counter < tokens.length){
+			//console.log('finding');
+			var leaves = self.tree.find(tokens[counter]);
+			if(leaves !== null){
+				for(var i in leaves){
+					if(score[i] === undefined){
+						score[i] = 0;
+					}
+					score[i]++;
 				}
-				score[i]++;
 			}
+			setImmediate(find, counter+1);
+		}else{
+			done(score);
 		}
-
 	}
+	find(0);
+}
+
+engine.prototype.getTopKResults = function(score){
 	var matchedDocs = [];
 	for(var i in score){
 		this.docs[i].count = score[i];
@@ -64,35 +77,64 @@ var comp = function(a, b){
 	}
 }
 
-
-
 var searchEngine = new engine();
 function parseTokens(s){
 	//console.log(s);
 	
-	return s.split(" ");
+	var tokens = s.split(" ");
+	for(var i in tokens){
+		tokens[i] = tokens[i].toLowerCase().trim();
+	}
+	return tokens;
 }
-app.get('/search', function (req, res) {
+
+app.use(compression());
+app.use('/search', function(req, res, next){
 	var tokens;
 	try{
-		//tokens = JSON.parse(req.query.tokens);
 		tokens = parseTokens(req.query.tokens);
-		//console.log(tokens);
 	}catch(e){
 		 return res.status(400).send('Bad Request');
 	}
 	if(tokens === undefined){
-		return  res.status(202).end();
+		return  res.status(400).send('Empty tokens Request');
 	}
+	req.tokens = tokens;
+	next();
+})
+
+app.use('/search', function(req, res, next){
+	searchEngine.getScores(req.tokens, function(score){
+		req.score = score;
+		//console.log(score);
+		next();
 	
-	//startTime = new Date().getTime();
-	docs = searchEngine.search(tokens);
-	//var endTime = new Date().getTime();	
-	//console.log(" query time taken is");
-	//console.log((endTime- startTime)/1000);
-	return res.send(docs);
-	//var docs = searchEngine.s
-  
+	});
+});
+
+app.use('/search', function(req, res, next){
+	req.docs = searchEngine.getTopKResults(req.score);
+	next();
+});
+
+/*app.use('/search', function(req, res, next){
+	console.log(req.docs.length);
+	function writeData(counter){
+		if(counter < req.docs.length){
+			console.log(counter);
+			res.json(JSON.stringify(req.docs[counter]), writeData(counter+1));
+		}else{
+			next();
+		}
+	}
+	writeData(0);
+});*/
+
+
+
+app.get('/search', function (req, res) {
+	
+	res.send(req.docs);
 })
 
 var server = app.listen(8080, function () {
