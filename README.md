@@ -17,8 +17,9 @@ Build instructions -
     Run "node --max_old_space_size=2048 ." to start the server.
 
 API exposed - 
-    /search?tokens=token1+token2+token3
+    <ip>:8080/search?tokens=token1+token2+token3
     It will return the topmost K reviews for the query.
+	The returned result has one extra parameter count which is the total matches found for the query.
     
 Test tokens -
   Test folder contains a tokens generator module.
