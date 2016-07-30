@@ -7,8 +7,9 @@ var docIndex = {};
 var docs = {};
 var docNumber = -1;
 const totalDocCount = 560000;
+const samples = 50000;
 module.exports = function(file, done){
-	for(var i = 0; i < 100000; i++){
+	for(var i = 0; i < samples; i++){
 		var randomIndex = Math.floor(Math.random()*totalDocCount);
 		//console.log(randomIndex);
 		docIndex[randomIndex] = true;
@@ -34,7 +35,7 @@ var docAvailable = function(doc){
 
 		var words = [];
 		if(doc.summary != undefined){
-			words = doc.summary.split(/[-:',.%)/(!"?\s><]+/).filter(function(item) { return item !== '' });
+			words = doc.summary.split(/[-:',.%);/$~(!"?*\s><]+/).filter(function(item) { return item !== '' });
 		}
 		for(var i in words){
 			tree.add(words[i], docNumber);
@@ -42,7 +43,7 @@ var docAvailable = function(doc){
 		
 		words =  [];
 		if(doc.text != undefined){
-			words = doc.text.split(/[-:',.%)/(!"?\s><]+/).filter(function(item) { return item !== '' });
+			words = doc.text.split(/[-:',.%);/$~(!"?*\s><]+/).filter(function(item) { return item !== '' });
 		}
 		
 		for(var i in words){

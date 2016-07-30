@@ -19,7 +19,7 @@ var docAvailable = function(doc){
 	
 		var words = [];
 		if(doc.summary != undefined){
-			words = doc.summary.split(/[-:',.%)/(!"?*\s><]+/).filter(function(item) { return item !== '' });
+			words = doc.summary.split(/[-:',.%);/$~(!"?*\s><]+/).filter(function(item) { return item !== '' });
 		}
 		for(var i in words){
 			dictionary[words[i]] = true;
@@ -27,7 +27,7 @@ var docAvailable = function(doc){
 		
 		words =  [];
 		if(doc.text != undefined){
-			words = doc.text.split(/[-:',.%)/(!"?*\s><]+/).filter(function(item) { return item !== '' });
+			words = doc.text.split(/[-:',.%);/$~(!"?*\s><]+/).filter(function(item) { return item !== '' });
 		}
 		for(var i in words){
 			dictionary[words[i]] = true;
@@ -54,14 +54,15 @@ function generateTokens(){
 	var write = function(){
 		var count = Math.floor(Math.random()*9)+1;
 		//console.log(i);
-		var tokens = [];
+		var tokens = "";
 		for(var j = 0; j < count; j++){
 			var index = Math.floor(Math.random()*l);
-			tokens.push(keys[index]);
+			tokens = tokens + "+" + keys[index];
 		}
+		tokens = tokens.substr(1);
 		
-		stream.write(JSON.stringify(tokens)+"\n", function(){
-			if(i < 10000){
+		stream.write(tokens+"\n", function(){
+			if(i < 30000){
 				i++;
 				write();
 			}else{
