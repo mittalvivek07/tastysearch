@@ -55,14 +55,17 @@ engine.prototype.getScores = function(tokens, done){
 	find(0);
 }
 
-engine.prototype.getTopKResults = function(score){
-	var matchedDocs = [];
-	for(var i in score){
-		this.docs[i].count = score[i];
-		matchedDocs.push(this.docs[i]);
-	}
-	
-	return heap.nlargest(matchedDocs, k, comp);
+engine.prototype.getTopKResults = function(score, done){
+	var self = this;
+	setImmediate(function(){
+		var matchedDocs = [];
+		for(var i in score){
+			self.docs[i].count = score[i];
+			matchedDocs.push(self.docs[i]);
+		}
+		done(heap.nlargest(matchedDocs, k, comp));
+	})
+		
 }
 
 var comp = function(a, b){
@@ -113,8 +116,10 @@ app.use('/search', function(req, res, next){
 });
 
 app.use('/search', function(req, res, next){
-	req.docs = searchEngine.getTopKResults(req.score);
-	next();
+	searchEngine.getTopKResults(req.score, function(docs){
+		req.docs = docs;
+		next();
+	});
 });
 
 /*app.use('/search', function(req, res, next){
