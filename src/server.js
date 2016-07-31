@@ -3,7 +3,7 @@ const heap = require("heap");
 const k = 20;
 var express = require('express');
 var app = express();
-var compression = require('compression');
+//var compression = require('compression');
 
 
 var engine = function(){
@@ -91,7 +91,7 @@ function parseTokens(s){
 	return tokens;
 }
 
-app.use(compression());
+//app.use(compression());
 app.use('/search', function(req, res, next){
 	var tokens;
 	try{
@@ -122,24 +122,21 @@ app.use('/search', function(req, res, next){
 	});
 });
 
-/*app.use('/search', function(req, res, next){
-	console.log(req.docs.length);
+app.get('/search', function (req, res) {
 	function writeData(counter){
 		if(counter < req.docs.length){
-			console.log(counter);
-			res.json(JSON.stringify(req.docs[counter]), writeData(counter+1));
+			//console.log(counter);
+			var r = res.write(JSON.stringify(req.docs[counter]));
+			if(r === false){
+				res.on("drain", writeData, counter+1);
+			}else{
+				setImmediate(writeData, counter+1);
+			}
 		}else{
-			next();
+			res.end();
 		}
 	}
 	writeData(0);
-});*/
-
-
-
-app.get('/search', function (req, res) {
-	
-	res.send(req.docs);
 })
 
 var server = app.listen(8080, function () {
