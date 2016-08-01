@@ -9,6 +9,10 @@ var app = express();
 var engine = function(){
 	
 }
+
+/**
+* Initializes the trie from an input file
+**/
 engine.prototype.start = function(done){
 	var startTime = new Date().getTime();
 	var self = this;
@@ -18,24 +22,18 @@ engine.prototype.start = function(done){
 		var endTime = new Date().getTime();	
 		console.log("time taken is");
 		console.log((endTime- startTime)/1000);
-		
 		done();
 	})
 			
 }
 
-
+/**
+* Asynchronously compute the scores for the documents with the provided tokens
+**/
 engine.prototype.getScores = function(tokens, done){
 	var score = {};
-	//console.log(this.docs);
-	//console.log(this.tree);
-	//
-	//console.log(tokens);
 	var self = this;
 	var find = function(counter){
-		//console.log(tokens.length);
-		//console.log(tokens);
-		//console.log(counter);
 		if(counter < tokens.length){
 			//console.log('finding');
 			var leaves = self.tree.find(tokens[counter]);
@@ -55,6 +53,9 @@ engine.prototype.getScores = function(tokens, done){
 	find(0);
 }
 
+/**
+*	Given the scores of the documents returns the topmost k documents
+**/
 engine.prototype.getTopKResults = function(score, done){
 	var self = this;
 	setImmediate(function(){
@@ -68,6 +69,9 @@ engine.prototype.getTopKResults = function(score, done){
 		
 }
 
+/**
+* Comparator function for sorting the documents based on score and ratings 
+**/
 var comp = function(a, b){
 	if(a.count > b.count){
 		return 1;
@@ -109,7 +113,6 @@ app.use('/search', function(req, res, next){
 app.use('/search', function(req, res, next){
 	searchEngine.getScores(req.tokens, function(score){
 		req.score = score;
-		//console.log(score);
 		next();
 	
 	});
@@ -125,7 +128,6 @@ app.use('/search', function(req, res, next){
 app.get('/search', function (req, res) {
 	function writeData(counter){
 		if(counter < req.docs.length){
-			//console.log(counter);
 			var r = res.write(JSON.stringify(req.docs[counter]));
 			if(r === false){
 				res.on("drain", writeData, counter+1);
@@ -140,7 +142,6 @@ app.get('/search', function (req, res) {
 })
 
 var server = app.listen(8080, function () {
-	
 	searchEngine.start(function(){
 		var host = server.address().address
 		var port = server.address().port

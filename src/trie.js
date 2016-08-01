@@ -1,7 +1,10 @@
+/**
+* This is a unified trie for all the documents.
+* To which document a word belongs is denoted by the list of the leaf document nodes
+* in the node representing end of a word. 
+**/
 var trie = module.exports = function(){
     this.root = new node("");
-    //console.log(s);
-
 }
 trie.prototype.log = function(){
     this.root.log();
@@ -11,8 +14,6 @@ trie.prototype.find = function(s){
 }
 trie.prototype.add = function(s, docNumber){
 	s = s.toLowerCase();
-	//console.log(s);
-	//console.log(docNumber);
 	this.root.add(s, docNumber);
 }
 
@@ -27,12 +28,10 @@ var node = function(s){
 }
 
 node.prototype.add = function(s, docNumber){
-   // console.log(s);
     if(s.length === 0){
 		if(this.leafs === undefined){
 			this.leafs = {};
 		}
-		//console.log(docNumber);
 		this.leafs[docNumber] = true;
         return;
     }

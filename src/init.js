@@ -9,12 +9,13 @@ var docNumber = -1;
 const totalDocCount = 560000;
 const samples = 50000;
 module.exports = function(file, done){
+	//Randomly pick documents for initial data
 	for(var i = 0; i < samples; i++){
 		var randomIndex = Math.floor(Math.random()*totalDocCount);
-		//console.log(randomIndex);
 		docIndex[randomIndex] = true;
 	}
 	
+	// Parse the file and return the trie and docs in callback
 	parser.parse(file, docAvailable, function(){
 		console.log(docNumber);
 		delete(docIndex);
@@ -22,7 +23,9 @@ module.exports = function(file, done){
 	});
 }
 
-
+/**
+* On availability of a document add the content to the trie.
+**/
 var docAvailable = function(doc){
 		docNumber++;
 		if(docIndex[docNumber] === undefined){
